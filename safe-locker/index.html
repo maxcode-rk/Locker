@@ -1,144 +1,131 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Secure Online Locker</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Online Safe Locker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body {
-  font-family: Arial, sans-serif;
-  background: #0f172a;
-  color: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+body{
+  background:#0f172a;
+  font-family: Arial;
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
 }
 
-.card {
-  background: #020617;
-  padding: 25px;
-  border-radius: 10px;
-  width: 100%;
-  max-width: 400px;
-  box-shadow: 0 0 20px #000;
+.container{
+  background:#020617;
+  padding:25px;
+  width:320px;
+  border-radius:10px;
+  box-shadow:0 0 15px black;
 }
 
-input, button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  border-radius: 6px;
-  border: none;
+input{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  font-size:16px;
+  border-radius:6px;
+  border:none;
 }
 
-input {
-  background: #1e293b;
-  color: #fff;
+button{
+  width:100%;
+  padding:12px;
+  margin-top:12px;
+  font-size:16px;
+  background:#2563eb;
+  color:white;
+  border:none;
+  border-radius:6px;
 }
 
-button {
-  background: #2563eb;
-  color: #fff;
-  cursor: pointer;
+#locker{
+  display:none;
 }
 
-button:hover {
-  background: #1d4ed8;
-}
-
-.hidden { display: none; }
-
-.file {
-  background: #1e293b;
-  padding: 10px;
-  margin-top: 8px;
-  border-radius: 6px;
-  font-size: 14px;
+.file{
+  background:#1e293b;
+  padding:8px;
+  margin-top:8px;
+  border-radius:5px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
-<div class="card" id="loginBox">
-  <h2>🔐 Secure Locker</h2>
-  <input type="password" id="password" placeholder="Enter Password">
-  <button onclick="login()">Unlock</button>
-  <p id="msg" style="color:red"></p>
+<!-- PASSWORD BOX -->
+<div class="container" id="login">
+  <h2>🔐 Enter Password</h2>
+
+  <!-- YE HAI PASSWORD BOX -->
+  <input type="password" id="pass" placeholder="Type password here">
+
+  <button onclick="unlock()">Unlock</button>
+  <p id="error" style="color:red"></p>
 </div>
 
 <!-- LOCKER -->
-<div class="card hidden" id="lockerBox">
-  <h2>📂 My Locker</h2>
+<div class="container" id="locker">
+  <h2>📂 My Safe Locker</h2>
+
   <input type="file" id="fileInput">
-  <button onclick="uploadFile()">Upload</button>
+  <button onclick="saveFile()">Upload</button>
+
   <div id="files"></div>
-  <button style="margin-top:15px;background:#dc2626" onclick="logout()">Lock</button>
+
+  <button style="background:#dc2626" onclick="lock()">Lock</button>
 </div>
 
 <script>
-const PASSWORD_HASH = "e99a18c428cb38d5f260853678922e03"; 
-// password = abc123
+const PASSWORD = "1234"; // yahan password change karo
 
-function md5(str) {
-  return CryptoJS.MD5(str).toString();
-}
-
-function login() {
-  const pass = document.getElementById("password").value;
-  if (md5(pass) === PASSWORD_HASH) {
-    localStorage.setItem("unlocked","1");
-    showLocker();
-  } else {
-    document.getElementById("msg").innerText = "Wrong Password";
+function unlock(){
+  let p = document.getElementById("pass").value;
+  if(p === PASSWORD){
+    document.getElementById("login").style.display="none";
+    document.getElementById("locker").style.display="block";
+    loadFiles();
+  }else{
+    document.getElementById("error").innerText="Wrong Password";
   }
 }
 
-function showLocker() {
-  document.getElementById("loginBox").classList.add("hidden");
-  document.getElementById("lockerBox").classList.remove("hidden");
-  loadFiles();
-}
-
-function logout() {
-  localStorage.removeItem("unlocked");
+function lock(){
   location.reload();
 }
 
-function uploadFile() {
-  const file = document.getElementById("fileInput").files[0];
-  if (!file) return;
+function saveFile(){
+  let file = document.getElementById("fileInput").files[0];
+  if(!file) return;
 
-  const reader = new FileReader();
-  reader.onload = function() {
-    let files = JSON.parse(localStorage.getItem("lockerFiles") || "[]");
-    files.push({ name: file.name, data: reader.result });
-    localStorage.setItem("lockerFiles", JSON.stringify(files));
+  let reader = new FileReader();
+  reader.onload = function(){
+    let data = JSON.parse(localStorage.getItem("locker") || "[]");
+    data.push({name:file.name, content:reader.result});
+    localStorage.setItem("locker", JSON.stringify(data));
     loadFiles();
   };
   reader.readAsDataURL(file);
 }
 
-function loadFiles() {
-  const filesDiv = document.getElementById("files");
-  filesDiv.innerHTML = "";
-  let files = JSON.parse(localStorage.getItem("lockerFiles") || "[]");
-  files.forEach(f => {
-    const div = document.createElement("div");
-    div.className = "file";
-    div.innerHTML = `<a href="${f.data}" download="${f.name}" style="color:#60a5fa">${f.name}</a>`;
-    filesDiv.appendChild(div);
+function loadFiles(){
+  let box = document.getElementById("files");
+  box.innerHTML="";
+  let data = JSON.parse(localStorage.getItem("locker") || "[]");
+  data.forEach(f=>{
+    let d = document.createElement("div");
+    d.className="file";
+    d.innerHTML=`<a href="${f.content}" download="${f.name}" style="color:#60a5fa">${f.name}</a>`;
+    box.appendChild(d);
   });
 }
-
-if (localStorage.getItem("unlocked")) showLocker();
 </script>
-
-<!-- CryptoJS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
 </body>
 </html>
