@@ -2,41 +2,54 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Online Safe Locker</title>
+<title>Secure Locker</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
+*{
+  box-sizing:border-box;
+}
+
 body{
+  margin:0;
   background:#0f172a;
-  font-family: Arial;
-  color:white;
+  font-family:Arial, sans-serif;
   display:flex;
   justify-content:center;
   align-items:center;
   height:100vh;
 }
 
-.container{
-  background:#020617;
-  padding:25px;
-  width:320px;
+/* MAIN BOX */
+.box{
+  background:#ffffff;
+  width:340px;
+  padding:20px;
   border-radius:10px;
-  box-shadow:0 0 15px black;
+  box-shadow:0 10px 25px rgba(0,0,0,0.4);
 }
 
+/* HEADINGS */
+h2{
+  margin:0 0 15px;
+  text-align:center;
+  color:#111827;
+}
+
+/* INPUT */
 input{
   width:100%;
   padding:12px;
-  margin-top:10px;
   font-size:16px;
+  border:1px solid #9ca3af;
   border-radius:6px;
-  border:none;
+  margin-bottom:12px;
 }
 
+/* BUTTON */
 button{
   width:100%;
   padding:12px;
-  margin-top:12px;
   font-size:16px;
   background:#2563eb;
   color:white;
@@ -44,14 +57,22 @@ button{
   border-radius:6px;
 }
 
+/* ERROR */
+#error{
+  color:red;
+  text-align:center;
+}
+
+/* LOCKER */
 #locker{
   display:none;
 }
 
+/* FILE ITEM */
 .file{
-  background:#1e293b;
+  background:#f3f4f6;
   padding:8px;
-  margin-top:8px;
+  margin-top:6px;
   border-radius:5px;
 }
 </style>
@@ -59,31 +80,31 @@ button{
 
 <body>
 
-<!-- PASSWORD BOX -->
-<div class="container" id="login">
-  <h2>🔐 Enter Password</h2>
+<!-- LOGIN -->
+<div class="box" id="login">
+  <h2>🔐 Locker Login</h2>
 
-  <!-- YE HAI PASSWORD BOX -->
-  <input type="password" id="pass" placeholder="Type password here">
+  <!-- PASSWORD BOX CLEAR -->
+  <input type="password" id="pass" placeholder="Enter password">
 
   <button onclick="unlock()">Unlock</button>
-  <p id="error" style="color:red"></p>
+  <p id="error"></p>
 </div>
 
 <!-- LOCKER -->
-<div class="container" id="locker">
-  <h2>📂 My Safe Locker</h2>
+<div class="box" id="locker">
+  <h2>📂 My Locker</h2>
 
   <input type="file" id="fileInput">
   <button onclick="saveFile()">Upload</button>
 
   <div id="files"></div>
 
-  <button style="background:#dc2626" onclick="lock()">Lock</button>
+  <button style="background:#dc2626;margin-top:12px" onclick="lock()">Lock</button>
 </div>
 
 <script>
-const PASSWORD = "1234"; // yahan password change karo
+const PASSWORD = "1234";
 
 function unlock(){
   let p = document.getElementById("pass").value;
@@ -106,9 +127,9 @@ function saveFile(){
 
   let reader = new FileReader();
   reader.onload = function(){
-    let data = JSON.parse(localStorage.getItem("locker") || "[]");
+    let data = JSON.parse(localStorage.getItem("lockerData") || "[]");
     data.push({name:file.name, content:reader.result});
-    localStorage.setItem("locker", JSON.stringify(data));
+    localStorage.setItem("lockerData", JSON.stringify(data));
     loadFiles();
   };
   reader.readAsDataURL(file);
@@ -117,11 +138,11 @@ function saveFile(){
 function loadFiles(){
   let box = document.getElementById("files");
   box.innerHTML="";
-  let data = JSON.parse(localStorage.getItem("locker") || "[]");
+  let data = JSON.parse(localStorage.getItem("lockerData") || "[]");
   data.forEach(f=>{
     let d = document.createElement("div");
     d.className="file";
-    d.innerHTML=`<a href="${f.content}" download="${f.name}" style="color:#60a5fa">${f.name}</a>`;
+    d.innerHTML=`<a href="${f.content}" download="${f.name}">${f.name}</a>`;
     box.appendChild(d);
   });
 }
